@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Brain Tumor Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f4; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        h1 { color: #333; text-align: center; }
+        form { display: flex; flex-direction: column; align-items: center; }
+        input[type="file"] { margin-bottom: 20px; }
+        input[type="submit"] { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        input[type="submit"]:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload MRI for Brain Tumor Prediction</h1>
+        <form method="post" action="/upload" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".jpg, .jpeg, .png">
+            <input type="submit" value="Upload and Predict">
+        </form>
+    </div>
+</body>
+</html>
