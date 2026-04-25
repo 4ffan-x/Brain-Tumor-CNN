@@ -7,8 +7,7 @@ from tensorflow.keras.models import load_model
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-
-model = load_model('brain_tumor_classifier.keras')  
+model = load_model('brain_tumor_classifier.keras')
 label_encoder = pickle.load(open('brain_tumor_label_encoder.pkl', 'rb'))  
 
 UPLOAD_FOLDER = 'uploads'
