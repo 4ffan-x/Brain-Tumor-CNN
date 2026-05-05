@@ -1,21 +1,31 @@
-from flask import Flask, request, render_template, redirect, url_for, send_from_directory
+from flask import Flask, request, render_template, redirect, send_from_directory
 import cv2
 import numpy as np
 import os
 import pickle
+import zipfile
 from tensorflow.keras.models import load_model
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-model = load_model('brain_tumor_classifier.keras',compile=False)
-label_encoder = pickle.load(open('label_encoder.pkl', 'rb'))  
 
 UPLOAD_FOLDER = 'uploads'
+MODEL_ZIP = "C:\\Users\\Affan\\Desktop\\Brain-Tumor-CNN\\webapp-docker-code\\brain_model_backup.zip"
+MODEL_PATH = 'brain_tumor_classifier.keras'
+
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+if not os.path.exists(MODEL_PATH):
+    with zipfile.ZipFile(MODEL_ZIP, 'r') as zip_ref:
+        zip_ref.extractall()
+
+model = load_model(MODEL_PATH, compile=False)
+label_encoder = pickle.load(open('label_encoder.pkl', 'rb'))
 
 def process_image_for_prediction(image_path, image_size=(120, 120)):
     image = cv2.imread(image_path)
-
     if image is None:
         raise ValueError(f"Image not found at path: {image_path}")
 
@@ -28,7 +38,7 @@ def process_image_for_prediction(image_path, image_size=(120, 120)):
     predicted_index = np.argmax(predictions)
     confidence_score = predictions[0][predicted_index]
     predicted_label = label_encoder.inverse_transform([predicted_index])[0]
-    
+
     return predicted_label, confidence_score
 
 @app.route('/')
@@ -48,18 +58,17 @@ def upload_file():
     if file.filename == '':
         return redirect(request.url)
 
-    if file:
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(file_path)
 
-        predicted_label, confidence_score = process_image_for_prediction(file_path)
-        
-        return render_template('result.html',
-                               image_path=file_path,
-                               filename=filename,
-                               predicted_label=predicted_label,
-                               confidence_score=confidence_score)
+    predicted_label, confidence_score = process_image_for_prediction(file_path)
+
+    return render_template('result.html',
+                           image_path=file_path,
+                           filename=filename,
+                           predicted_label=predicted_label,
+                           confidence_score=confidence_score)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
